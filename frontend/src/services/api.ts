@@ -25,23 +25,26 @@ export const analyzeToken = async (params: AnalysisParams): Promise<AnalysisResu
       investment_amount: params.investmentAmount
     };
     
+    console.log('API Request:', requestData);
     const { data } = await api.post('/api/analyze', requestData);
+    console.log('API Response:', data);
+    
     return data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      const errorDetail = error.response?.data?.detail || error.response?.data?.error;
+      const errorMessage = error.response?.data?.error || error.response?.data?.detail || 'Analysis failed';
       
       if (error.response?.status === 404) {
-        throw new Error(errorDetail || 'No liquidity found for this token in Uniswap V3 pools');
+        throw new Error('No liquidity found for this token in Uniswap pools');
       }
       if (error.response?.status === 400) {
-        throw new Error(errorDetail || 'Invalid token contract address');
+        throw new Error(errorMessage);
       }
       if (error.response?.status === 503 || error.response?.status === 500) {
-        throw new Error(errorDetail || 'Service temporarily unavailable. Please try again later.');
+        throw new Error('Service temporarily unavailable. Please try again later.');
       }
       
-      throw new Error(typeof errorDetail === 'object' ? JSON.stringify(errorDetail) : (errorDetail || 'Analysis failed'));
+      throw new Error(errorMessage);
     }
     throw error;
   }

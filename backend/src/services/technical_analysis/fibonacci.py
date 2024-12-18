@@ -21,11 +21,11 @@ class FibonacciAnalyzer(BaseTechnicalAnalysis):
     def calculate_levels(self, trend: str = 'up') -> List[Dict]:
         """Calculate Fibonacci levels based on trend direction"""
         if trend == 'up':
-            swing_low = self.df['low'].min()
-            swing_high = self.df['high'].max()
+            swing_low = self.df['close'].min()
+            swing_high = self.df['close'].max()
         else:
-            swing_low = self.df['high'].max()
-            swing_high = self.df['low'].min()
+            swing_low = self.df['close'].max()
+            swing_high = self.df['close'].min()
 
         price_range = swing_high - swing_low
         levels = []

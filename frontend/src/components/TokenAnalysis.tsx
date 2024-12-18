@@ -38,44 +38,31 @@ export const TokenAnalysis: React.FC = () => {
         return;
       }
 
-      // Connect to WebSocket for progress updates
-      ws = new WebSocket(`${env.WS_URL}/ws/analysis`);
-      
-      // Set up WebSocket handlers before making the API call
-      const wsPromise = new Promise<void>((resolve, reject) => {
-        if (!ws) return reject(new Error('WebSocket not initialized'));
-        
-        ws.onopen = () => {
-          console.log('WebSocket connected');
-          resolve();
-        };
-        
-        ws.onerror = (event) => {
-          console.error('WebSocket error:', event);
-          // Don't reject here, we still want to continue with analysis
-          resolve(); // Continue even if WebSocket fails
-        };
-        
+      // Connect to WebSocket
+      try {
+        ws = new WebSocket(`${env.WS_URL}/ws/analysis`);
         ws.onmessage = (event) => {
-          try {
-            const message = JSON.parse(event.data);
-            if (message.type === 'progress') {
-              setProgress(prev => [...prev, message.data]);
-            }
-          } catch (e) {
-            console.error('Failed to parse WebSocket message:', e);
+          const message = JSON.parse(event.data);
+          if (message.type === 'progress') {
+            setProgress(prev => [...prev, message.data]);
           }
         };
-        
-        // Timeout after 3 seconds
-        setTimeout(() => resolve(), 3000);
-      });
+      } catch (wsError) {
+        console.warn('WebSocket connection failed:', wsError);
+        // Continue without WebSocket
+      }
 
-      // Wait for WebSocket to connect (or timeout)
-      await wsPromise;
-
-      // Make the API call
+      console.log('Sending analysis request with params:', analysisParams);
       const result = await analyzeToken(analysisParams);
+      
+      console.log('Raw API Response:', result);
+      console.log('Price Data Sample:', result.priceData?.slice(0, 2));
+      console.log('Technical Analysis:', result.technical_analysis);
+      
+      if (!result.priceData || !result.technical_analysis) {
+        throw new Error('Invalid response format from API');
+      }
+
       setAnalysisResult(result);
       
     } catch (err) {
@@ -89,7 +76,11 @@ export const TokenAnalysis: React.FC = () => {
     } finally {
       setLoading(false);
       if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.close();
+        try {
+          ws.close();
+        } catch (closeError) {
+          console.warn('Error closing WebSocket:', closeError);
+        }
       }
     }
   };
@@ -137,9 +128,16 @@ export const TokenAnalysis: React.FC = () => {
       
       {analysisResult && (
         <div className="space-y-6">
-          <PriceChart data={analysisResult.priceData} />
-          <TechnicalIndicators analysis={analysisResult.technical_analysis} />
-          <DCAStrategy strategy={analysisResult.dca_strategy} />
+          <PriceChart 
+            data={analysisResult.priceData} 
+            loading={loading} 
+          />
+          <TechnicalIndicators 
+            analysis={analysisResult.technical_analysis} 
+          />
+          <DCAStrategy 
+            strategy={analysisResult.dca_strategy} 
+          />
         </div>
       )}
     </div>

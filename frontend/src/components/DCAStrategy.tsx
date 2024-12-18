@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface DCAStrategyProps {
-  strategy: {
+  strategy?: {
     entry_points: Array<{ price: number; percentage: number }>;
     exit_points: Array<{ price: number; percentage: number }>;
     risk_score: number;
@@ -14,6 +14,17 @@ interface DCAStrategyProps {
 }
 
 export const DCAStrategy: React.FC<DCAStrategyProps> = ({ strategy }) => {
+  if (!strategy) {
+    return (
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">DCA Strategy</h2>
+        <div className="bg-white p-4 rounded-lg shadow">
+          <p className="text-gray-500">No DCA strategy data available</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mb-8">
       <h2 className="text-xl font-semibold mb-4">DCA Strategy</h2>
@@ -21,7 +32,7 @@ export const DCAStrategy: React.FC<DCAStrategyProps> = ({ strategy }) => {
         <div className="bg-white p-4 rounded-lg shadow">
           <h3 className="font-medium mb-2">Entry Points</h3>
           <div className="space-y-2">
-            {strategy.entry_points.map((point, i) => (
+            {strategy.entry_points?.map((point, i) => (
               <div key={i}>
                 <span className="text-gray-600">Price:</span>
                 <span className="ml-2">${point.price.toFixed(2)}</span>
@@ -34,7 +45,7 @@ export const DCAStrategy: React.FC<DCAStrategyProps> = ({ strategy }) => {
         <div className="bg-white p-4 rounded-lg shadow">
           <h3 className="font-medium mb-2">Investment Distribution</h3>
           <div className="space-y-2">
-            {strategy.investment_distribution.map((dist, i) => (
+            {strategy.investment_distribution?.map((dist, i) => (
               <div key={i}>
                 <span className="text-gray-600">${dist.amount.toFixed(2)}</span>
                 <span className="ml-2">@ ${dist.price_target.toFixed(2)}</span>
