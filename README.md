@@ -9,7 +9,10 @@ This tool analyzes Ethereum tokens and provides data-driven insights for DCA inv
 ## Features
 
 - Token contract validation and information retrieval
-- Multiple timeframe analysis (15m, 1h, 4h, 1d)
+- Multiple timeframe analysis (1h, 4h, 1d)
+- Price data sourcing:
+  - Primary: DefiLlama API (reliable, high-quality price data)
+  - Historical price data with customizable intervals
 - Technical indicators:
   - Support and resistance levels
   - Fibonacci retracement levels
@@ -30,6 +33,7 @@ This tool analyzes Ethereum tokens and provides data-driven insights for DCA inv
 - pandas for data analysis
 - scipy/numpy for technical analysis
 - Technical indicators libraries (TA-Lib)
+- Price data: DefiLlama API
 
 ### Frontend
 - Next.js/React
@@ -124,6 +128,7 @@ This tool analyzes Ethereum tokens and provides data-driven insights for DCA inv
 1. Clone the repository
 ```bash
 git clone https://github.com/yourusername/token-analysis-tool.git
+cd token-analysis-tool
 ```
 
 2. Install TA-Lib (required for technical analysis):
@@ -172,7 +177,6 @@ npm install
 Backend:
 ```env
 ETHEREUM_PROVIDER_URL=your_provider_url
-PRICE_API_KEY=your_api_key
 ```
 
 Frontend:
@@ -197,6 +201,22 @@ npm run dev
 # Frontend will run on http://localhost:3000
 ```
 
+## Price Data Sources
+
+The application uses DefiLlama's API as the primary source for price data. This provides several advantages:
+- Reliable and accurate price data
+- High availability
+- No API key required
+- Support for historical prices
+- Multiple timeframe support
+
+## Rate Limits
+
+DefiLlama API rate limits:
+- 10-200 requests per minute
+- Automatic rate limiting implemented in the backend
+- Retry mechanism for failed requests
+
 ## Contributing
 
 Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
@@ -205,25 +225,8 @@ Please read CONTRIBUTING.md for details on our code of conduct and the process f
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-Note: This project uses free public APIs for Ethereum RPC and price data. No API keys are required for basic functionality. The endpoints are configured in `backend/src/config.py`.
+Note: This project uses free public APIs for Ethereum RPC and price data. The endpoints are configured in `backend/src/config.py`.
 
 Public APIs used:
 - Ethereum RPC: Ankr, Cloudflare, Public RPC
-- Price Data: CoinGecko API
-- DEX Data: The Graph (Uniswap V2/V3)
-
-## Price Fetching Logic
-
-Supported stablecoins and their priorities:
-
-```python
-SUPPORTED_STABLECOINS = {
-    # address: (symbol, decimals, priority)
-    "0xdAC17F958D2ee523a2206206994597C13D831ec7": ("USDT", 6, 1),
-    "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48": ("USDC", 6, 1),
-    "0x6B175474E89094C44Da98b954EedeAC495271d0F": ("DAI", 18, 2),
-    "0x4Fabb145d64652a948d72533023f6E7A623C7C53": ("BUSD", 18, 2),
-}
-
-WETH_ADDRESS = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
-```
+- Price Data: DefiLlama API
